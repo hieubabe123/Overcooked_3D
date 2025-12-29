@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ddbd3cedfbdd65a42992c12fee2c7ee2, type: 3}
   m_Name: MeatBurned
   m_EditorClassIdentifier: 
+  type: 6
   objectName: MeatBurned
   objectSprite: {fileID: 21300000, guid: 713ea9afa60dd6e4ebf6503a33e8cc99, type: 3}
   objectPrefab: {fileID: 3812876574508226177, guid: 0df961a7e3870b44f9bbce7bdf930613, type: 3}

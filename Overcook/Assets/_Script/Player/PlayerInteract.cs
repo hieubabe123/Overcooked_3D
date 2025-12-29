@@ -4,13 +4,28 @@ using UnityEngine;
 
 public class PlayerInteract : MonoBehaviour
 {
+    [SerializeField] private Transform holdPoint;
     public float interactDistance = 2f;
     private CounterBase currentCounter;
-
+    private FoodCounter currentFoodCounter;
+    private KitchenObjectSO kitchenData;
+    private bool canInteractCounter = false;
+    private bool canTakeFood = false;
+    private bool canPlaceFood = false;
 
     void Update()
     {
         HandleApproach();
+        if (canTakeFood && canInteractCounter)
+        {
+            if (Input.GetKeyDown(KeyCode.E))
+            {
+                canTakeFood = false;
+                Debug.Log("Player interacted with counter.");
+                EventDispatcher.Dispatch(new EventDefine.OnPlayerInteractToFoodCounter { Counter = currentFoodCounter, HoldPoint = holdPoint });
+                kitchenData = KitchenManager.Instance.GetKitchenObjectData(currentCounter.CounterType);
+            }
+        }
     }
 
     private void HandleApproach()
@@ -24,10 +39,24 @@ public class PlayerInteract : MonoBehaviour
                 {
                     EventDispatcher.Dispatch(new EventDefine.OnPlayerGoAwayFromCounter { Counter = currentCounter });
                     currentCounter = counter;
+                    canInteractCounter = true;
                     EventDispatcher.Dispatch(new EventDefine.OnPlayerApproachCounter { Counter = counter });
-                    if (Input.GetKeyDown(KeyCode.E))
+                    if (counter is FoodCounter foodCounter)
                     {
-                        EventDispatcher.Dispatch(new EventDefine.OnPlayerInteractCounter { Counter = counter });
+                        currentFoodCounter = foodCounter;
+                        if (kitchenData == null)
+                        {
+                            canTakeFood = true;
+                        }
+                        else
+                        {
+                            canTakeFood = false;
+                        }
+                    }
+                    else
+                    {
+                        currentFoodCounter = null;
+                        canTakeFood = false;
                     }
                 }
             }
@@ -36,6 +65,7 @@ public class PlayerInteract : MonoBehaviour
                 if (currentCounter != null)
                 {
                     EventDispatcher.Dispatch(new EventDefine.OnPlayerGoAwayFromCounter { Counter = currentCounter });
+                    canInteractCounter = false;
                     currentCounter = null;
                 }
             }
@@ -46,6 +76,7 @@ public class PlayerInteract : MonoBehaviour
             {
                 EventDispatcher.Dispatch(new EventDefine.OnPlayerGoAwayFromCounter { Counter = currentCounter });
                 currentCounter = null;
+                canInteractCounter = false;
             }
         }
     }

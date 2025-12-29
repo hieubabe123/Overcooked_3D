@@ -37,9 +37,10 @@ public class EventDefine
         public CounterBase Counter;
     }
 
-    public struct OnPlayerInteractCounter : IEventParam
+    public struct OnPlayerInteractToFoodCounter : IEventParam
     {
-        public CounterBase Counter;
+        public FoodCounter Counter;
+        public Transform HoldPoint;
     }
 
     public struct OnChangeCharacter : IEventParam
