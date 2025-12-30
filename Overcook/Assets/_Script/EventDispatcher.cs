@@ -27,35 +27,15 @@ public class EventDefine
     // ─────────────────────────────────────────
     //  In GAME STATE EVENTS
     // ─────────────────────────────────────────
-    public struct OnPlayerApproachCounter : IEventParam
-    {
-        public CounterBase Counter;
-    }
+    public struct OnPlayerApproachCounter : IEventParam { public CounterBase Counter; }
 
-    public struct OnPlayerGoAwayFromCounter : IEventParam
-    {
-        public CounterBase Counter;
-    }
+    public struct OnPlayerGoAwayFromCounter : IEventParam { public CounterBase Counter; }
 
-    public struct OnPlayerInteractToFoodCounter : IEventParam
-    {
-        public FoodCounter Counter;
-        public Transform HoldPoint;
-    }
+    public struct OnPlayerInteractToFoodCounter : IEventParam { public FoodCounter Counter; public Transform HoldPoint; }
 
-    public struct OnChangeCharacter : IEventParam
-    {
-        public int CharacterIdx;
-        public int CharacterClothIdx;
-        public ChangeType changeType;
-    }
+    public struct OnPlayerTakeFoodFromClearCounter : IEventParam { public KitchenObjectSO KitchenData; public Transform HoldPoint; }
+    public struct OnPlayerGiveFoodToClearCounter : IEventParam { public KitchenObjectSO KitchenData; public Transform HoldPoint; }
 
-    public struct OnSelectCharacter : IEventParam
-    {
-        public int CharacterIdx;
-        public int CharacterClothIdx;
-        public ChangeType changeType;
-    }
 
     // ─────────────────────────────────────────
     //  UI & GAMEPLAY EVENTS

@@ -1,6 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
+
+public enum PlayerState
+{
+    HoldFood,
+    EmptyHand,
+    Slicing,
+    Cooking
+}
 
 public class PlayerInteract : MonoBehaviour
 {
@@ -9,23 +18,64 @@ public class PlayerInteract : MonoBehaviour
     private CounterBase currentCounter;
     private FoodCounter currentFoodCounter;
     private KitchenObjectSO kitchenData;
+    private PlayerState currentState = PlayerState.EmptyHand;
     private bool canInteractCounter = false;
-    private bool canTakeFood = false;
-    private bool canPlaceFood = false;
+    private bool canTakeFoodFromFoodCouner = false;
+    private bool canTakeFoodFromClearCounter = false;
+
 
     void Update()
     {
-        HandleApproach();
-        if (canTakeFood && canInteractCounter)
+        switch (currentState)
         {
-            if (Input.GetKeyDown(KeyCode.E))
-            {
-                canTakeFood = false;
-                Debug.Log("Player interacted with counter.");
-                EventDispatcher.Dispatch(new EventDefine.OnPlayerInteractToFoodCounter { Counter = currentFoodCounter, HoldPoint = holdPoint });
-                kitchenData = KitchenManager.Instance.GetKitchenObjectData(currentCounter.CounterType);
-            }
+            case PlayerState.EmptyHand:
+                canTakeFoodFromClearCounter = true;
+                canTakeFoodFromFoodCouner = true;
+                break;
+            case PlayerState.HoldFood:
+                canTakeFoodFromClearCounter = false;
+                canTakeFoodFromFoodCouner = false;
+                break;
+            case PlayerState.Slicing:
+                //HandleSlicing();
+                break;
+            case PlayerState.Cooking:
+                //HandleCooking();
+                break;
         }
+        HandleApproach();
+        if (Input.GetKeyDown(KeyCode.E))
+            if (canInteractCounter)
+            {
+                if (canTakeFoodFromFoodCouner && currentCounter is FoodCounter)
+                {
+                    currentState = PlayerState.HoldFood;
+                    canTakeFoodFromFoodCouner = false;
+                    EventDispatcher.Dispatch(new EventDefine.OnPlayerInteractToFoodCounter { Counter = currentFoodCounter, HoldPoint = holdPoint });
+                    kitchenData = KitchenManager.Instance.GetKitchenObjectData(currentCounter.CounterType);
+                }
+
+                if (canTakeFoodFromClearCounter)
+                {
+                    if (currentCounter is ClearCounter clearCounter && clearCounter.KitchenData != null)
+                    {
+                        Debug.Log("Take Food From Clear Counter");
+                        kitchenData = clearCounter.KitchenData;
+                        currentState = PlayerState.HoldFood;
+                        EventDispatcher.Dispatch(new EventDefine.OnPlayerTakeFoodFromClearCounter { KitchenData = kitchenData, HoldPoint = holdPoint });
+
+                    }
+                }
+                else
+                {
+                    if (currentCounter is ClearCounter clearCounter && clearCounter.KitchenData == null)
+                    {
+                        EventDispatcher.Dispatch(new EventDefine.OnPlayerGiveFoodToClearCounter { KitchenData = kitchenData, HoldPoint = holdPoint });
+                        currentState = PlayerState.EmptyHand;
+                        kitchenData = null;
+                    }
+                }
+            }
     }
 
     private void HandleApproach()
@@ -46,17 +96,17 @@ public class PlayerInteract : MonoBehaviour
                         currentFoodCounter = foodCounter;
                         if (kitchenData == null)
                         {
-                            canTakeFood = true;
+                            canTakeFoodFromFoodCouner = true;
                         }
                         else
                         {
-                            canTakeFood = false;
+                            canTakeFoodFromFoodCouner = false;
                         }
                     }
                     else
                     {
                         currentFoodCounter = null;
-                        canTakeFood = false;
+                        canTakeFoodFromFoodCouner = false;
                     }
                 }
             }
